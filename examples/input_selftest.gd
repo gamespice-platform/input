@@ -4,8 +4,8 @@ extends Node
 ## Counts sections run to their last line as well as checks, because a script error
 ## aborts a section and not the run.
 
-const EXPECTED_SECTIONS := 6
-const EXPECTED_CHECKS := 63
+const EXPECTED_SECTIONS := 7
+const EXPECTED_CHECKS := 96
 
 var _passed := 0
 var _failed := 0
@@ -20,6 +20,7 @@ func _ready() -> void:
 	_conflicts()
 	_intent()
 	_text_and_map()
+	_vocab()
 	print("")
 	_check(_sections == EXPECTED_SECTIONS, "every section ran to its last line (%d of %d)" % [_sections, EXPECTED_SECTIONS])
 	_check(_passed + _failed == EXPECTED_CHECKS, "and the suite ran all %d of its checks (%d)" % [EXPECTED_CHECKS, _passed + _failed])
@@ -143,6 +144,22 @@ func _text_and_map() -> void:
 	_check(DotInputMap.ensure_action(a, "K") == "K", "ensure_action binds an empty action")
 	_check(DotInputMap.describe_action(&"dot_input_selftest_missing") == "", "a missing action describes as unbound")
 	InputMap.erase_action(a)
+	_sections += 1
+
+
+func _vocab() -> void:
+	var pairs := {
+		"key:F": "F", "key:Shift+A": "Shift+A", "mouse:1": "Mouse 1", "mouse:4": "Wheel up",
+		"mouse:8": "Mouse back", "pad:a": "Pad 0", "pad:dpad_right": "Pad 14", "pad:lx-": "Axis 0-",
+		"pad:ry+": "Axis 3+", "pad:rt": "Axis 5+", "pad:lt": "Axis 4+",
+	}
+	for binding: String in pairs:
+		_check(DotInputVocab.to_text(binding) == pairs[binding], "%s reads as '%s'" % [binding, pairs[binding]], DotInputVocab.to_text(binding))
+		_check(DotInputVocab.to_binding(pairs[binding]) == binding, "'%s' writes as %s" % [pairs[binding], binding], DotInputVocab.to_binding(pairs[binding]))
+	for bad in ["touch:fire", "pad:nope", "pad:lx", "key:Qwerty", "mouse:0", "mouse:x", "key:", "F", ""]:
+		_check(DotInputVocab.to_text(bad) == "", "'%s' has no text form" % bad)
+	_check(DotInputVocab.to_binding("Axis 5-") == "" and DotInputVocab.to_binding("Qwerty") == "", "a backwards trigger and nonsense have no binding")
+	_check(DotInputActionSet.new().declare(&"v", "button", {"kbm": [DotInputVocab.to_binding("Mouse 1")], "pad": [DotInputVocab.to_binding("Pad 0")]}).ok, "a converted binding is accepted by the action set")
 	_sections += 1
 
 
