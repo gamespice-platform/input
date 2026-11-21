@@ -1,6 +1,6 @@
 extends Node
 
-## dot-input's headless suite (res://examples/input_selftest.tscn).
+## gs-input's headless suite (res://examples/input_selftest.tscn).
 ## Counts sections run to their last line as well as checks, because a script error
 ## aborts a section and not the run.
 
@@ -13,7 +13,7 @@ var _sections := 0
 
 
 func _ready() -> void:
-	print("dot-input")
+	print("gs-input")
 	_config()
 	_declare()
 	_rebind()
@@ -135,14 +135,14 @@ func _text_and_map() -> void:
 	_check(GSInputText.to_text(GSInputText.from_text("Axis 1-")) == "Axis 1-", "an axis direction round-trips")
 	_check(GSInputText.from_text("Qwerty") == null and GSInputText.from_text("") == null, "nonsense and empty name nothing")
 	_check(not GSInputText.is_bound("Axis 1"), "an axis without a sign is not a binding")
-	var a := &"dot_input_selftest_action"
+	var a := &"gs_input_selftest_action"
 	_check(GSInputMap.apply(a, "Y") == "Y" and GSInputMap.describe_action(a) == "Y", "apply creates the action")
 	GSInputMap.apply(a, "U")
 	_check(InputMap.action_get_events(a).size() == 1 and GSInputMap.describe_action(a) == "U", "apply replaces, never adds")
 	_check(GSInputMap.ensure_action(a, "K") == "U", "ensure_action keeps an existing binding")
 	_check(GSInputMap.apply(a, "Qwerty") == "" and InputMap.action_get_events(a).is_empty(), "text naming nothing leaves the action unbound")
 	_check(GSInputMap.ensure_action(a, "K") == "K", "ensure_action binds an empty action")
-	_check(GSInputMap.describe_action(&"dot_input_selftest_missing") == "", "a missing action describes as unbound")
+	_check(GSInputMap.describe_action(&"gs_input_selftest_missing") == "", "a missing action describes as unbound")
 	InputMap.erase_action(a)
 	_sections += 1
 

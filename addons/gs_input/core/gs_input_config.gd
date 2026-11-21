@@ -1,9 +1,9 @@
 class_name GSInputConfig
 extends GSConfig
 
-## Every tunable of the input model. A game binds it with GSGameConfigBinder (kind `input`) for cvars and the workbench; `cfg/addon/dot_input/*.yml`, `DOT_INPUT_*` and `--input-*` layer over these defaults.
+## Every tunable of the input model. A game binds it with GSGameConfigBinder (kind `input`) for cvars and the workbench; `cfg/addon/gs_input/*.yml`, `GS_INPUT_*` and `--input-*` layer over these defaults.
 
-const ADDON := "dot-input"
+const ADDON := "gs-input"
 ## A rebind onto a binding another action already holds is refused.
 const CONFLICT_REFUSE := 0
 ## A rebind onto a binding another action already holds takes it from that action.
@@ -28,7 +28,7 @@ const CONFLICT_STEAL := 1
 
 
 func env_prefix() -> String:
-	return "DOT_INPUT_"
+	return "GS_INPUT_"
 
 
 func cli_prefix() -> String:
@@ -49,7 +49,7 @@ func validate() -> GSResult:
 	return GSResult.success(self)
 
 
-## Defaults, then `cfg/addon/dot_input/*.yml` and the game tier, then environment and command line.
+## Defaults, then `cfg/addon/gs_input/*.yml` and the game tier, then environment and command line.
 static func from_files() -> GSResult:
 	var cfg := GSInputConfig.new()
 	var files := GSAddonConfig.load_dir(ADDON)

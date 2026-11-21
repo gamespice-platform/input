@@ -6,8 +6,8 @@ The addon is the data model: which actions a game has, what each device binds th
 
 ## Install
 
-1. Copy `addons/dot_input/` and `addons/dot_core/` into your project.
-2. Enable dot-input in *Project > Project Settings > Plugins*.
+1. Copy `addons/gs_input/` and `addons/gs_core/` into your project.
+2. Enable gs-input in *Project > Project Settings > Plugins*.
 
 ## Quick start
 
@@ -43,7 +43,7 @@ Every number is a field on `GSInputConfig`. The values below are defaults, and t
 | `max_bindings_per_action` | 0 | Bindings one action may hold per device; 0 is no limit. |
 | `default_device` | `kbm` | The device a fresh profile starts on: `kbm`, `pad` or `touch`. |
 
-Layers, weakest first: the defaults, `cfg/addon/dot_input/*.yml`, the game's files, the operator's files, `DOT_INPUT_*` environment variables, then `--input-*` flags.
+Layers, weakest first: the defaults, `cfg/addon/gs_input/*.yml`, the game's files, the operator's files, `GS_INPUT_*` environment variables, then `--input-*` flags.
 
 ## What it is not
 

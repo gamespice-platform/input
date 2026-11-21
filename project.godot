@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="dot-input"
+config/name="gs-input"
 config/description="Godot 4.7+ addon for input: declared actions, device profiles, rebinding with conflict detection, and one sampled intent per tick."
 run/main_scene="res://examples/input_selftest.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
@@ -23,7 +23,7 @@ window/size/viewport_height=900
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/dot_input/plugin.cfg")
+enabled=PackedStringArray("res://addons/gs_input/plugin.cfg")
 
 [importer_defaults]
 
