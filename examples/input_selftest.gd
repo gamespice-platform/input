@@ -4,8 +4,8 @@ extends Node
 ## Counts sections run to their last line as well as checks, because a script error
 ## aborts a section and not the run.
 
-const EXPECTED_SECTIONS := 5
-const EXPECTED_CHECKS := 47
+const EXPECTED_SECTIONS := 6
+const EXPECTED_CHECKS := 63
 
 var _passed := 0
 var _failed := 0
@@ -19,6 +19,7 @@ func _ready() -> void:
 	_rebind()
 	_conflicts()
 	_intent()
+	_text_and_map()
 	print("")
 	_check(_sections == EXPECTED_SECTIONS, "every section ran to its last line (%d of %d)" % [_sections, EXPECTED_SECTIONS])
 	_check(_passed + _failed == EXPECTED_CHECKS, "and the suite ran all %d of its checks (%d)" % [EXPECTED_CHECKS, _passed + _failed])
@@ -118,6 +119,31 @@ func _intent() -> void:
 	_check(back.tick == 1 and back.is_down(&"fire") and is_equal_approx(back.axis(&"move_x"), 0.5), "an intent survives its dictionary")
 	_sections += 1
 
+
+
+func _text_and_map() -> void:
+	_check(DotInputText.to_text(DotInputText.from_text("Y")) == "Y", "a key round-trips through text")
+	_check(DotInputText.to_text(DotInputText.from_text("Shift+A")) == "Shift+A", "a modifier round-trips")
+	_check(DotInputText.to_text(DotInputText.from_text("Mouse 1")) == "Mouse 1", "a mouse button round-trips")
+	_check(DotInputText.to_text(DotInputText.from_text("Wheel up")) == "Wheel up", "the wheel keeps its name")
+	var old_wheel := DotInputText.from_text("Mouse 4") as InputEventMouseButton
+	_check(old_wheel != null and old_wheel.button_index == MOUSE_BUTTON_WHEEL_UP, "an old Mouse 4 still reads as the wheel")
+	var side := DotInputText.from_text("mouse back") as InputEventMouseButton
+	_check(side != null and side.button_index == MOUSE_BUTTON_XBUTTON1, "names are case-blind and beat the number parse")
+	_check(DotInputText.to_text(DotInputText.from_text("Pad 3")) == "Pad 3", "a pad button round-trips")
+	_check(DotInputText.to_text(DotInputText.from_text("Axis 1-")) == "Axis 1-", "an axis direction round-trips")
+	_check(DotInputText.from_text("Qwerty") == null and DotInputText.from_text("") == null, "nonsense and empty name nothing")
+	_check(not DotInputText.is_bound("Axis 1"), "an axis without a sign is not a binding")
+	var a := &"dot_input_selftest_action"
+	_check(DotInputMap.apply(a, "Y") == "Y" and DotInputMap.describe_action(a) == "Y", "apply creates the action")
+	DotInputMap.apply(a, "U")
+	_check(InputMap.action_get_events(a).size() == 1 and DotInputMap.describe_action(a) == "U", "apply replaces, never adds")
+	_check(DotInputMap.ensure_action(a, "K") == "U", "ensure_action keeps an existing binding")
+	_check(DotInputMap.apply(a, "Qwerty") == "" and InputMap.action_get_events(a).is_empty(), "text naming nothing leaves the action unbound")
+	_check(DotInputMap.ensure_action(a, "K") == "K", "ensure_action binds an empty action")
+	_check(DotInputMap.describe_action(&"dot_input_selftest_missing") == "", "a missing action describes as unbound")
+	InputMap.erase_action(a)
+	_sections += 1
 
 
 func _check(ok: bool, what: String, extra: String = "") -> void:

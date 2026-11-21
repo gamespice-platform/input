@@ -2,7 +2,7 @@
 
 Godot 4.7+ addon for input: declared actions, device profiles for keyboard and mouse, gamepad and touch, rebinding with conflict detection, and one sampled intent per tick. Part of the [GameSpice](https://github.com/gamespice-platform) family. It needs only [GameSpice Core](https://github.com/gamespice-platform/core).
 
-The addon is the data model: which actions a game has, what each device binds them to, who clashes, and what one tick of input looked like as plain values. It never reads `Input` and never edits `InputMap`; the game, or GameSpice UI's `DotInputBinding` for the event-to-text step, does that.
+The addon is the data model: which actions a game has, what each device binds them to, who clashes, and what one tick of input looked like as plain values. The data model never reads `Input` or edits `InputMap`. `DotInputText` (event to short text and back, pure) and `DotInputMap` (apply text to `InputMap` actions) are the two classes that do the event step.
 
 ## Install
 
