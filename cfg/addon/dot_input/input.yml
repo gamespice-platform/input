@@ -1,4 +1,4 @@
-# Shipped defaults are in DotInputConfig; a key here overrides one.
+# Shipped defaults are in GSInputConfig; a key here overrides one.
 # gamepad_deadzone: 0.2
 # trigger_threshold: 0.5
 # conflict_policy: 0

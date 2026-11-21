@@ -1,11 +1,11 @@
-class_name DotInputConflicts
+class_name GSInputConflicts
 extends RefCounted
 
 ## Finds bindings two actions of one context share, for a rebinding screen that wants to show them (the set itself refuses them on rebind, but defaults and loaded profiles can arrive already in conflict).
 
 
 ## One entry per shared binding on [param device]: {binding, actions}, actions sorted.
-static func find(set: DotInputActionSet, device: String) -> Array:
+static func find(set: GSInputActionSet, device: String) -> Array:
 	var seen: Dictionary = {}
 	for action: StringName in set.names():
 		for text in set.bindings(action, device):

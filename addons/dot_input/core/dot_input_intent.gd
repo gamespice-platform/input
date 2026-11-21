@@ -1,4 +1,4 @@
-class_name DotInputIntent
+class_name GSInputIntent
 extends RefCounted
 
 ## One tick of sampled input as plain values: which buttons are down, what each axis reads, and which buttons went down or up since the previous tick. This is what a game sends to a server and what a prediction replays; it holds no `Input` calls.
@@ -11,14 +11,14 @@ var released: Dictionary = {}
 
 
 ## Samples [param raw] (action name to 0..1 or -1..1 value, as a device layer read it) against [param set] and [param cfg]. [param previous] gives the edges; null means everything was up.
-static func sample(set: DotInputActionSet, cfg: DotInputConfig, raw: Dictionary, previous: DotInputIntent, at_tick: int) -> DotInputIntent:
-	var out := DotInputIntent.new()
+static func sample(set: GSInputActionSet, cfg: GSInputConfig, raw: Dictionary, previous: GSInputIntent, at_tick: int) -> GSInputIntent:
+	var out := GSInputIntent.new()
 	out.tick = at_tick
 	if not cfg.enabled:
 		return out
 	for action: StringName in set.names():
 		var value := float(raw.get(action, raw.get(str(action), 0.0)))
-		if set.kind_of(action) == DotInputActionSet.KIND_AXIS:
+		if set.kind_of(action) == GSInputActionSet.KIND_AXIS:
 			var shaped := apply_deadzone(value, cfg.gamepad_deadzone)
 			if shaped != 0.0:
 				out.axes[action] = shaped
@@ -59,8 +59,8 @@ func to_dict() -> Dictionary:
 	return {"tick": tick, "down": down.keys().map(str), "axes": _stringify(axes)}
 
 
-static func from_dict(d: Dictionary) -> DotInputIntent:
-	var out := DotInputIntent.new()
+static func from_dict(d: Dictionary) -> GSInputIntent:
+	var out := GSInputIntent.new()
 	out.tick = int(d.get("tick", 0))
 	for action in d.get("down", []):
 		out.down[StringName(action)] = true

@@ -1,12 +1,12 @@
 @tool
-class_name DotInputMap
+class_name GSInputMap
 extends RefCounted
 
-## Applies binding text ([DotInputText]) to [InputMap] actions: create, replace, describe.
+## Applies binding text ([GSInputText]) to [InputMap] actions: create, replace, describe.
 ##
 ## [codeblock]
-## DotInputMap.ensure_action(&"chat_open", "Y")   # only if the action has no binding yet
-## DotInputMap.apply(&"chat_open", "Shift+Y")      # replaces, never adds
+## GSInputMap.ensure_action(&"chat_open", "Y")   # only if the action has no binding yet
+## GSInputMap.apply(&"chat_open", "Shift+Y")      # replaces, never adds
 ## [/codeblock]
 
 const CHANNEL := "ui.binding"
@@ -14,7 +14,7 @@ const CHANNEL := "ui.binding"
 
 ## Points an action at exactly this binding, creating the action if it is new.
 ##
-## Returns the binding that ended up on the action, which is [constant DotInputText.UNBOUND] when the
+## Returns the binding that ended up on the action, which is [constant GSInputText.UNBOUND] when the
 ## text named nothing — a caller that shows the player their key wants what happened, not
 ## what was asked for.
 ##
@@ -22,7 +22,7 @@ const CHANNEL := "ui.binding"
 ## leave the action bound to two keys, which is what `action_add_event` on an existing
 ## action does, and what makes a rebound key still work on its old one.
 static func apply(action: StringName, text: String) -> String:
-	var event := DotInputText.from_text(text)
+	var event := GSInputText.from_text(text)
 
 	if not InputMap.has_action(action):
 		InputMap.add_action(action)
@@ -34,14 +34,14 @@ static func apply(action: StringName, text: String) -> String:
 		# that says "Qwerty" for a key has just left the action with no binding at all,
 		# and the player's only symptom is a key that does nothing. WARN, because the
 		# person who can fix it is whoever wrote that value, and the value is in a file.
-		if text.strip_edges() != DotInputText.UNBOUND:
-			DotLog.warn(CHANNEL, "a binding names no input, so the action is unbound", {
+		if text.strip_edges() != GSInputText.UNBOUND:
+			GSLog.warn(CHANNEL, "a binding names no input, so the action is unbound", {
 				"action": String(action), "text": text,
 			})
-		return DotInputText.UNBOUND
+		return GSInputText.UNBOUND
 
 	InputMap.action_add_event(action, event)
-	return DotInputText.to_text(event)
+	return GSInputText.to_text(event)
 
 
 ## Creates the action with this binding only if the project does not already have it.
@@ -59,7 +59,7 @@ static func ensure_action(action: StringName, text: String) -> String:
 ## The first binding on an action, as text. Empty for an action with none.
 static func describe_action(action: StringName) -> String:
 	if not InputMap.has_action(action):
-		return DotInputText.UNBOUND
+		return GSInputText.UNBOUND
 
 	var events := InputMap.action_get_events(action)
-	return DotInputText.UNBOUND if events.is_empty() else DotInputText.to_text(events[0])
+	return GSInputText.UNBOUND if events.is_empty() else GSInputText.to_text(events[0])

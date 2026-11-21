@@ -1,13 +1,13 @@
 @tool
-class_name DotInputText
+class_name GSInputText
 extends RefCounted
 
 ## One input binding as a short string, and back again. Pure: no [Input], no [InputMap], so a
-## dedicated server and a suite can hold it. [DotInputMap] applies the text to actions.
+## dedicated server and a suite can hold it. [GSInputMap] applies the text to actions.
 ##
-## [b]Why a string and not a dictionary.[/b] [DotBindingsPanel] already stores bindings
+## [b]Why a string and not a dictionary.[/b] [GSBindingsPanel] already stores bindings
 ## as a dictionary in a file of its own, which is right for a whole rebinding screen. A
-## single binding that travels in a settings document — [code]DotSettingsDef.binding[/code],
+## single binding that travels in a settings document — [code]GSSettingsDef.binding[/code],
 ## a console variable, a query string — needs a form a person can read in a JSON file and
 ## type by hand, and [code]{"type":"key","code":89,"physical":true}[/code] is neither.
 ## [code]"Y"[/code] is both.
@@ -18,9 +18,9 @@ extends RefCounted
 ## file that disagrees with their own keyboard.
 ##
 ## [codeblock]
-## DotInputText.to_text(event)          # "Y", "Space", "Shift+A", "Mouse 1", "Wheel up"
-## DotInputText.from_text("Y")          # an InputEventKey on the physical Y
-## DotInputText.ensure_action(&"chat_open", "Y")
+## GSInputText.to_text(event)          # "Y", "Space", "Shift+A", "Mouse 1", "Wheel up"
+## GSInputText.from_text("Y")          # an InputEventKey on the physical Y
+## GSInputText.ensure_action(&"chat_open", "Y")
 ## [/codeblock]
 ##
 ## [b]Keys are physical.[/b] A binding stored as a keycode is stored in the player's
@@ -89,7 +89,7 @@ static func mouse_text(button_index: int) -> String:
 
 ## The event a binding string names, or null.
 ##
-## [b]Null rather than a [DotResult].[/b] Every caller is either "bind this" or "show
+## [b]Null rather than a [GSResult].[/b] Every caller is either "bind this" or "show
 ## this", and both want the same thing from "Qwerty" as from "": nothing. A result here
 ## would be a result every caller unwraps into a null check.
 static func from_text(text: String) -> InputEvent:

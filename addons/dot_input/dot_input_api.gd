@@ -1,8 +1,8 @@
 extends RefCounted
 
-## GameSpice Input's API level. The rule for bumping it is on [DotAddonApi].
+## GameSpice Input's API level. The rule for bumping it is on [GSAddonApi].
 
-# 1: DotInputActionSet, DotInputConflicts, DotInputIntent, DotInputConfig.
-# 2: DotInputText (event and text, pure) and DotInputMap (apply to InputMap), moved from GameSpice UI.
+# 1: GSInputActionSet, GSInputConflicts, GSInputIntent, GSInputConfig.
+# 2: GSInputText (event and text, pure) and GSInputMap (apply to InputMap), moved from GameSpice UI.
 const LEVEL := 2
 const OLDEST := 1

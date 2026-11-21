@@ -1,7 +1,7 @@
-class_name DotInputConfig
-extends DotConfig
+class_name GSInputConfig
+extends GSConfig
 
-## Every tunable of the input model. A game binds it with DotGameConfigBinder (kind `input`) for cvars and the workbench; `cfg/addon/dot_input/*.yml`, `DOT_INPUT_*` and `--input-*` layer over these defaults.
+## Every tunable of the input model. A game binds it with GSGameConfigBinder (kind `input`) for cvars and the workbench; `cfg/addon/dot_input/*.yml`, `DOT_INPUT_*` and `--input-*` layer over these defaults.
 
 const ADDON := "dot-input"
 ## A rebind onto a binding another action already holds is refused.
@@ -35,24 +35,24 @@ func cli_prefix() -> String:
 	return "--input-"
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if gamepad_deadzone < 0.0 or gamepad_deadzone >= 1.0:
-		return DotResult.fail(DotError.CODE_INVALID, "input gamepad_deadzone %.2f must be in [0, 1)" % gamepad_deadzone)
+		return GSResult.fail(GSError.CODE_INVALID, "input gamepad_deadzone %.2f must be in [0, 1)" % gamepad_deadzone)
 	if trigger_threshold <= 0.0 or trigger_threshold > 1.0:
-		return DotResult.fail(DotError.CODE_INVALID, "input trigger_threshold %.2f must be in (0, 1]" % trigger_threshold)
+		return GSResult.fail(GSError.CODE_INVALID, "input trigger_threshold %.2f must be in (0, 1]" % trigger_threshold)
 	if conflict_policy != CONFLICT_REFUSE and conflict_policy != CONFLICT_STEAL:
-		return DotResult.fail(DotError.CODE_INVALID, "input conflict_policy %d is not 0 or 1" % conflict_policy)
+		return GSResult.fail(GSError.CODE_INVALID, "input conflict_policy %d is not 0 or 1" % conflict_policy)
 	if max_bindings_per_action < 0:
-		return DotResult.fail(DotError.CODE_INVALID, "input max_bindings_per_action %d is negative (0 is no limit)" % max_bindings_per_action)
-	if not DotInputActionSet.DEVICES.has(default_device):
-		return DotResult.fail(DotError.CODE_INVALID, "input default_device '%s' is not one of %s" % [default_device, DotInputActionSet.DEVICES])
-	return DotResult.success(self)
+		return GSResult.fail(GSError.CODE_INVALID, "input max_bindings_per_action %d is negative (0 is no limit)" % max_bindings_per_action)
+	if not GSInputActionSet.DEVICES.has(default_device):
+		return GSResult.fail(GSError.CODE_INVALID, "input default_device '%s' is not one of %s" % [default_device, GSInputActionSet.DEVICES])
+	return GSResult.success(self)
 
 
 ## Defaults, then `cfg/addon/dot_input/*.yml` and the game tier, then environment and command line.
-static func from_files() -> DotResult:
-	var cfg := DotInputConfig.new()
-	var files := DotAddonConfig.load_dir(ADDON)
+static func from_files() -> GSResult:
+	var cfg := GSInputConfig.new()
+	var files := GSAddonConfig.load_dir(ADDON)
 	if not files.ok:
 		return files
 	cfg.apply_dictionary(files.value as Dictionary, "yml")

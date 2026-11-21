@@ -29,7 +29,7 @@ func _ready() -> void:
 
 
 func _config() -> void:
-	var c := DotInputConfig.new()
+	var c := GSInputConfig.new()
 	_check(c.validate().ok, "defaults validate")
 	_check(c.config_keys().size() >= 6, "every tunable is a config key", str(c.config_keys().size()))
 	for k in ["gamepad_deadzone", "trigger_threshold", "conflict_policy", "max_bindings_per_action", "default_device", "enabled"]:
@@ -47,37 +47,37 @@ func _config() -> void:
 
 
 func _declare() -> void:
-	var s := DotInputActionSet.new()
+	var s := GSInputActionSet.new()
 	_check(s.declare(&"fire", "button", {"kbm": ["mouse:1"], "pad": ["pad:rt"]}).ok, "a button declares")
 	_check(s.declare(&"move_x", "axis", {"pad": ["pad:lx+"]}).ok, "an axis declares")
 	_check(not s.declare(&"fire", "button").ok, "a duplicate name is refused")
-	_check(s.declare(&"fire", "button").error.code == DotError.CODE_CONFLICT, "and it is a conflict")
+	_check(s.declare(&"fire", "button").error.code == GSError.CODE_CONFLICT, "and it is a conflict")
 	_check(not s.declare(&"", "button").ok, "an empty name is refused")
 	_check(not s.declare(&"x", "slider").ok, "an unknown kind is refused")
 	_check(not s.declare(&"bad", "button", {"kbm": ["pad:a"]}).ok, "a pad binding on the keyboard is refused")
 	_check(not s.has(&"bad"), "a failed declare leaves nothing behind")
 	_check(s.bindings(&"fire", "kbm") == PackedStringArray(["mouse:1"]), "bindings read back")
 	_check(s.bindings(&"fire", "touch").is_empty(), "an unbound device is empty")
-	_check(DotInputActionSet.is_valid_binding("touch", "touch:fire") and not DotInputActionSet.is_valid_binding("touch", "touch:"), "an empty binding body is not valid")
+	_check(GSInputActionSet.is_valid_binding("touch", "touch:fire") and not GSInputActionSet.is_valid_binding("touch", "touch:"), "an empty binding body is not valid")
 	_check(s.names().size() == 2, "two actions declared")
 	_sections += 1
 
 
 func _rebind() -> void:
-	var cfg := DotInputConfig.new()
-	var s := DotInputActionSet.new()
+	var cfg := GSInputConfig.new()
+	var s := GSInputActionSet.new()
 	s.declare(&"jump", "button", {"kbm": ["key:Space"]})
 	s.declare(&"crouch", "button", {"kbm": ["key:C"]})
 	s.declare(&"menu_ok", "button", {"kbm": ["key:Space"]}, "menu")
 	_check(s.rebind(&"crouch", "kbm", "key:X", cfg).ok and s.bindings(&"crouch", "kbm") == PackedStringArray(["key:X"]), "a free rebind replaces the binding")
 	var r := s.rebind(&"crouch", "kbm", "key:Space", cfg)
-	_check(not r.ok and r.error.code == DotError.CODE_CONFLICT, "a taken binding is refused by default")
+	_check(not r.ok and r.error.code == GSError.CODE_CONFLICT, "a taken binding is refused by default")
 	_check(s.bindings(&"crouch", "kbm") == PackedStringArray(["key:X"]), "a refused rebind changes nothing")
 	_check(s.holders(&"crouch", "kbm", "key:Space") == [&"jump"], "other contexts do not count as holders")
-	cfg.conflict_policy = DotInputConfig.CONFLICT_STEAL
+	cfg.conflict_policy = GSInputConfig.CONFLICT_STEAL
 	_check(s.rebind(&"crouch", "kbm", "key:Space", cfg).ok, "steal takes it")
 	_check(s.bindings(&"jump", "kbm").is_empty() and s.bindings(&"menu_ok", "kbm").size() == 1, "from the holder in the same context only")
-	var lim := DotInputConfig.new()
+	var lim := GSInputConfig.new()
 	lim.max_bindings_per_action = 1
 	_check(not s.add_binding(&"crouch", "kbm", "key:Z", false, lim).ok, "a configured limit refuses a second binding")
 	lim.max_bindings_per_action = 0
@@ -87,62 +87,62 @@ func _rebind() -> void:
 
 
 func _conflicts() -> void:
-	var s := DotInputActionSet.new()
+	var s := GSInputActionSet.new()
 	s.declare(&"a", "button", {"kbm": ["key:E"]})
 	s.declare(&"b", "button", {"kbm": ["key:E", "key:R"]})
 	s.declare(&"c", "button", {"kbm": ["key:E"]}, "menu")
-	var found := DotInputConflicts.find(s, "kbm")
+	var found := GSInputConflicts.find(s, "kbm")
 	_check(found.size() == 1, "one shared binding", str(found))
 	_check(found[0]["binding"] == "key:E" and found[0]["actions"] == ["a", "b"], "it names both actions, not the other context")
-	_check(DotInputConflicts.find(s, "pad").is_empty(), "a device with nothing bound has none")
+	_check(GSInputConflicts.find(s, "pad").is_empty(), "a device with nothing bound has none")
 	_sections += 1
 
 
 func _intent() -> void:
-	var cfg := DotInputConfig.new()
-	var s := DotInputActionSet.new()
+	var cfg := GSInputConfig.new()
+	var s := GSInputActionSet.new()
 	s.declare(&"fire", "button")
 	s.declare(&"move_x", "axis")
-	_check(is_equal_approx(DotInputIntent.apply_deadzone(0.1, 0.2), 0.0), "inside the dead zone is zero")
-	_check(is_equal_approx(DotInputIntent.apply_deadzone(1.0, 0.2), 1.0), "full deflection stays 1")
-	_check(is_equal_approx(DotInputIntent.apply_deadzone(-0.6, 0.2), -0.5), "the rest rescales and keeps its sign")
-	var t1 := DotInputIntent.sample(s, cfg, {&"fire": 1.0, &"move_x": 0.6}, null, 1)
+	_check(is_equal_approx(GSInputIntent.apply_deadzone(0.1, 0.2), 0.0), "inside the dead zone is zero")
+	_check(is_equal_approx(GSInputIntent.apply_deadzone(1.0, 0.2), 1.0), "full deflection stays 1")
+	_check(is_equal_approx(GSInputIntent.apply_deadzone(-0.6, 0.2), -0.5), "the rest rescales and keeps its sign")
+	var t1 := GSInputIntent.sample(s, cfg, {&"fire": 1.0, &"move_x": 0.6}, null, 1)
 	_check(t1.is_down(&"fire") and t1.pressed.has(&"fire"), "a fresh press is down and pressed")
 	_check(is_equal_approx(t1.axis(&"move_x"), 0.5), "the axis is shaped")
-	var t2 := DotInputIntent.sample(s, cfg, {&"fire": 1.0}, t1, 2)
+	var t2 := GSInputIntent.sample(s, cfg, {&"fire": 1.0}, t1, 2)
 	_check(t2.is_down(&"fire") and not t2.pressed.has(&"fire"), "a held button is not pressed again")
-	var t3 := DotInputIntent.sample(s, cfg, {&"fire": 0.2}, t2, 3)
+	var t3 := GSInputIntent.sample(s, cfg, {&"fire": 0.2}, t2, 3)
 	_check(not t3.is_down(&"fire") and t3.released.has(&"fire"), "under the threshold releases")
 	_check(t3.is_empty(), "nothing held is empty")
 	cfg.enabled = false
-	_check(DotInputIntent.sample(s, cfg, {&"fire": 1.0}, null, 4).is_empty(), "a disabled addon samples empty")
-	var back := DotInputIntent.from_dict(t1.to_dict())
+	_check(GSInputIntent.sample(s, cfg, {&"fire": 1.0}, null, 4).is_empty(), "a disabled addon samples empty")
+	var back := GSInputIntent.from_dict(t1.to_dict())
 	_check(back.tick == 1 and back.is_down(&"fire") and is_equal_approx(back.axis(&"move_x"), 0.5), "an intent survives its dictionary")
 	_sections += 1
 
 
 
 func _text_and_map() -> void:
-	_check(DotInputText.to_text(DotInputText.from_text("Y")) == "Y", "a key round-trips through text")
-	_check(DotInputText.to_text(DotInputText.from_text("Shift+A")) == "Shift+A", "a modifier round-trips")
-	_check(DotInputText.to_text(DotInputText.from_text("Mouse 1")) == "Mouse 1", "a mouse button round-trips")
-	_check(DotInputText.to_text(DotInputText.from_text("Wheel up")) == "Wheel up", "the wheel keeps its name")
-	var old_wheel := DotInputText.from_text("Mouse 4") as InputEventMouseButton
+	_check(GSInputText.to_text(GSInputText.from_text("Y")) == "Y", "a key round-trips through text")
+	_check(GSInputText.to_text(GSInputText.from_text("Shift+A")) == "Shift+A", "a modifier round-trips")
+	_check(GSInputText.to_text(GSInputText.from_text("Mouse 1")) == "Mouse 1", "a mouse button round-trips")
+	_check(GSInputText.to_text(GSInputText.from_text("Wheel up")) == "Wheel up", "the wheel keeps its name")
+	var old_wheel := GSInputText.from_text("Mouse 4") as InputEventMouseButton
 	_check(old_wheel != null and old_wheel.button_index == MOUSE_BUTTON_WHEEL_UP, "an old Mouse 4 still reads as the wheel")
-	var side := DotInputText.from_text("mouse back") as InputEventMouseButton
+	var side := GSInputText.from_text("mouse back") as InputEventMouseButton
 	_check(side != null and side.button_index == MOUSE_BUTTON_XBUTTON1, "names are case-blind and beat the number parse")
-	_check(DotInputText.to_text(DotInputText.from_text("Pad 3")) == "Pad 3", "a pad button round-trips")
-	_check(DotInputText.to_text(DotInputText.from_text("Axis 1-")) == "Axis 1-", "an axis direction round-trips")
-	_check(DotInputText.from_text("Qwerty") == null and DotInputText.from_text("") == null, "nonsense and empty name nothing")
-	_check(not DotInputText.is_bound("Axis 1"), "an axis without a sign is not a binding")
+	_check(GSInputText.to_text(GSInputText.from_text("Pad 3")) == "Pad 3", "a pad button round-trips")
+	_check(GSInputText.to_text(GSInputText.from_text("Axis 1-")) == "Axis 1-", "an axis direction round-trips")
+	_check(GSInputText.from_text("Qwerty") == null and GSInputText.from_text("") == null, "nonsense and empty name nothing")
+	_check(not GSInputText.is_bound("Axis 1"), "an axis without a sign is not a binding")
 	var a := &"dot_input_selftest_action"
-	_check(DotInputMap.apply(a, "Y") == "Y" and DotInputMap.describe_action(a) == "Y", "apply creates the action")
-	DotInputMap.apply(a, "U")
-	_check(InputMap.action_get_events(a).size() == 1 and DotInputMap.describe_action(a) == "U", "apply replaces, never adds")
-	_check(DotInputMap.ensure_action(a, "K") == "U", "ensure_action keeps an existing binding")
-	_check(DotInputMap.apply(a, "Qwerty") == "" and InputMap.action_get_events(a).is_empty(), "text naming nothing leaves the action unbound")
-	_check(DotInputMap.ensure_action(a, "K") == "K", "ensure_action binds an empty action")
-	_check(DotInputMap.describe_action(&"dot_input_selftest_missing") == "", "a missing action describes as unbound")
+	_check(GSInputMap.apply(a, "Y") == "Y" and GSInputMap.describe_action(a) == "Y", "apply creates the action")
+	GSInputMap.apply(a, "U")
+	_check(InputMap.action_get_events(a).size() == 1 and GSInputMap.describe_action(a) == "U", "apply replaces, never adds")
+	_check(GSInputMap.ensure_action(a, "K") == "U", "ensure_action keeps an existing binding")
+	_check(GSInputMap.apply(a, "Qwerty") == "" and InputMap.action_get_events(a).is_empty(), "text naming nothing leaves the action unbound")
+	_check(GSInputMap.ensure_action(a, "K") == "K", "ensure_action binds an empty action")
+	_check(GSInputMap.describe_action(&"dot_input_selftest_missing") == "", "a missing action describes as unbound")
 	InputMap.erase_action(a)
 	_sections += 1
 
@@ -154,12 +154,12 @@ func _vocab() -> void:
 		"pad:ry+": "Axis 3+", "pad:rt": "Axis 5+", "pad:lt": "Axis 4+",
 	}
 	for binding: String in pairs:
-		_check(DotInputVocab.to_text(binding) == pairs[binding], "%s reads as '%s'" % [binding, pairs[binding]], DotInputVocab.to_text(binding))
-		_check(DotInputVocab.to_binding(pairs[binding]) == binding, "'%s' writes as %s" % [pairs[binding], binding], DotInputVocab.to_binding(pairs[binding]))
+		_check(GSInputVocab.to_text(binding) == pairs[binding], "%s reads as '%s'" % [binding, pairs[binding]], GSInputVocab.to_text(binding))
+		_check(GSInputVocab.to_binding(pairs[binding]) == binding, "'%s' writes as %s" % [pairs[binding], binding], GSInputVocab.to_binding(pairs[binding]))
 	for bad in ["touch:fire", "pad:nope", "pad:lx", "key:Qwerty", "mouse:0", "mouse:x", "key:", "F", ""]:
-		_check(DotInputVocab.to_text(bad) == "", "'%s' has no text form" % bad)
-	_check(DotInputVocab.to_binding("Axis 5-") == "" and DotInputVocab.to_binding("Qwerty") == "", "a backwards trigger and nonsense have no binding")
-	_check(DotInputActionSet.new().declare(&"v", "button", {"kbm": [DotInputVocab.to_binding("Mouse 1")], "pad": [DotInputVocab.to_binding("Pad 0")]}).ok, "a converted binding is accepted by the action set")
+		_check(GSInputVocab.to_text(bad) == "", "'%s' has no text form" % bad)
+	_check(GSInputVocab.to_binding("Axis 5-") == "" and GSInputVocab.to_binding("Qwerty") == "", "a backwards trigger and nonsense have no binding")
+	_check(GSInputActionSet.new().declare(&"v", "button", {"kbm": [GSInputVocab.to_binding("Mouse 1")], "pad": [GSInputVocab.to_binding("Pad 0")]}).ok, "a converted binding is accepted by the action set")
 	_sections += 1
 
 

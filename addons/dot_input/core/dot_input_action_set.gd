@@ -1,4 +1,4 @@
-class_name DotInputActionSet
+class_name GSInputActionSet
 extends RefCounted
 
 ## The declared actions of a game and what each device binds them to. Pure data: it never touches `InputMap`, so a server and a suite can hold one. A binding is a short string, `key:F`, `mouse:1`, `pad:a`, `pad:lx-`, `touch:fire`; the prefix says which device it belongs to.
@@ -15,13 +15,13 @@ var _bindings: Dictionary = {}
 
 
 ## Declares [param action]. [param defaults] maps a device to its binding strings. [param context] groups actions that must not share a binding (`move` and `menu` may reuse a key, two `move` actions may not).
-func declare(action: StringName, kind: String, defaults: Dictionary = {}, context: String = "play") -> DotResult:
+func declare(action: StringName, kind: String, defaults: Dictionary = {}, context: String = "play") -> GSResult:
 	if action == &"":
-		return DotResult.fail(DotError.CODE_INVALID, "an action needs a name")
+		return GSResult.fail(GSError.CODE_INVALID, "an action needs a name")
 	if kind != KIND_BUTTON and kind != KIND_AXIS:
-		return DotResult.fail(DotError.CODE_INVALID, "action %s has kind '%s', not button or axis" % [action, kind])
+		return GSResult.fail(GSError.CODE_INVALID, "action %s has kind '%s', not button or axis" % [action, kind])
 	if _kinds.has(action):
-		return DotResult.fail(DotError.CODE_CONFLICT, "action %s is already declared" % action)
+		return GSResult.fail(GSError.CODE_CONFLICT, "action %s is already declared" % action)
 	_kinds[action] = kind
 	_contexts[action] = context
 	_bindings[action] = {}
@@ -33,7 +33,7 @@ func declare(action: StringName, kind: String, defaults: Dictionary = {}, contex
 				_contexts.erase(action)
 				_bindings.erase(action)
 				return r
-	return DotResult.success(action)
+	return GSResult.success(action)
 
 
 func has(action: StringName) -> bool:
@@ -69,19 +69,19 @@ static func is_valid_binding(device: String, text: String) -> bool:
 
 
 ## Adds a binding. [param cfg] is optional; with it a limit on bindings per action applies (0 is no limit).
-func add_binding(action: StringName, device: String, text: String, ignore_limit: bool = true, cfg: DotInputConfig = null) -> DotResult:
+func add_binding(action: StringName, device: String, text: String, ignore_limit: bool = true, cfg: GSInputConfig = null) -> GSResult:
 	if not _kinds.has(action):
-		return DotResult.fail(DotError.CODE_INVALID, "action %s is not declared" % action)
+		return GSResult.fail(GSError.CODE_INVALID, "action %s is not declared" % action)
 	if not is_valid_binding(device, text):
-		return DotResult.fail(DotError.CODE_INVALID, "'%s' is not a %s binding" % [text, device])
+		return GSResult.fail(GSError.CODE_INVALID, "'%s' is not a %s binding" % [text, device])
 	var list := bindings(action, device)
 	if list.has(text):
-		return DotResult.success(action)
+		return GSResult.success(action)
 	if cfg != null and not ignore_limit and cfg.max_bindings_per_action > 0 and list.size() >= cfg.max_bindings_per_action:
-		return DotResult.fail(DotError.CODE_QUOTA, "action %s already holds %d %s bindings (the configured limit)" % [action, list.size(), device])
+		return GSResult.fail(GSError.CODE_QUOTA, "action %s already holds %d %s bindings (the configured limit)" % [action, list.size(), device])
 	list.append(text)
 	(_bindings[action] as Dictionary)[device] = list
-	return DotResult.success(action)
+	return GSResult.success(action)
 
 
 func remove_binding(action: StringName, device: String, text: String) -> void:
@@ -102,19 +102,19 @@ func holders(action: StringName, device: String, text: String) -> Array:
 
 
 ## Rebinds [param action] on [param device] to exactly [param text], applying the conflict policy of [param cfg]. A refused rebind changes nothing and its error names the holder.
-func rebind(action: StringName, device: String, text: String, cfg: DotInputConfig) -> DotResult:
+func rebind(action: StringName, device: String, text: String, cfg: GSInputConfig) -> GSResult:
 	if not _kinds.has(action):
-		return DotResult.fail(DotError.CODE_INVALID, "action %s is not declared" % action)
+		return GSResult.fail(GSError.CODE_INVALID, "action %s is not declared" % action)
 	if not is_valid_binding(device, text):
-		return DotResult.fail(DotError.CODE_INVALID, "'%s' is not a %s binding" % [text, device])
+		return GSResult.fail(GSError.CODE_INVALID, "'%s' is not a %s binding" % [text, device])
 	var taken := holders(action, device, text)
 	if not taken.is_empty():
-		if cfg.conflict_policy == DotInputConfig.CONFLICT_REFUSE:
-			return DotResult.fail(DotError.CODE_CONFLICT, "%s is already bound to %s" % [text, taken[0]])
+		if cfg.conflict_policy == GSInputConfig.CONFLICT_REFUSE:
+			return GSResult.fail(GSError.CODE_CONFLICT, "%s is already bound to %s" % [text, taken[0]])
 		for other: StringName in taken:
 			remove_binding(other, device, text)
 	(_bindings[action] as Dictionary)[device] = PackedStringArray([text])
-	return DotResult.success(action)
+	return GSResult.success(action)
 
 
 ## Puts one action back to the bindings it was declared with is the caller's job (keep the defaults set); this empties it.

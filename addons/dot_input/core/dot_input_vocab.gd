@@ -1,20 +1,20 @@
-class_name DotInputVocab
+class_name GSInputVocab
 extends RefCounted
 
-## Converts between the two spellings of one binding. [DotInputActionSet] writes a binding as
+## Converts between the two spellings of one binding. [GSInputActionSet] writes a binding as
 ## `device-prefix:name` (`key:F`, `mouse:1`, `pad:rt`, `pad:lx-`) because the prefix says which
-## device owns it; [DotInputText] writes the word a person types in a settings file and reads on a
+## device owns it; [GSInputText] writes the word a person types in a settings file and reads on a
 ## rebinding button (`F`, `Mouse 1`, `Pad 0`, `Axis 5+`). Both exist for good reasons, so this is
 ## the one place that says how they correspond, rather than every caller guessing.
 ##
 ## [codeblock]
-## DotInputVocab.to_text("key:F")      # "F"
-## DotInputVocab.to_text("mouse:4")    # "Wheel up", as DotInputText.mouse_text(4)
-## DotInputVocab.to_text("pad:a")      # "Pad 0"
-## DotInputVocab.to_text("pad:rt")     # "Axis 5+"   (a trigger is an axis in Godot)
-## DotInputVocab.to_text("pad:lx-")    # "Axis 0-"
-## DotInputVocab.to_binding("Mouse 1") # "mouse:1"
-## DotInputVocab.to_binding("Pad 0")   # "pad:a"
+## GSInputVocab.to_text("key:F")      # "F"
+## GSInputVocab.to_text("mouse:4")    # "Wheel up", as GSInputText.mouse_text(4)
+## GSInputVocab.to_text("pad:a")      # "Pad 0"
+## GSInputVocab.to_text("pad:rt")     # "Axis 5+"   (a trigger is an axis in Godot)
+## GSInputVocab.to_text("pad:lx-")    # "Axis 0-"
+## GSInputVocab.to_binding("Mouse 1") # "mouse:1"
+## GSInputVocab.to_binding("Pad 0")   # "pad:a"
 ## [/codeblock]
 ##
 ## [b]Touch has no text form[/b] (`touch:fire` is a named on-screen button, not an event), so it
@@ -31,7 +31,7 @@ const PAD_BUTTONS := {
 const PAD_AXES := {"lx": 0, "ly": 1, "rx": 2, "ry": 3, "lt": 4, "rt": 5}
 
 
-## A [DotInputActionSet] binding as [DotInputText] text, or "" when it has none.
+## A [GSInputActionSet] binding as [GSInputText] text, or "" when it has none.
 static func to_text(binding: String) -> String:
 	var colon := binding.find(":")
 	if colon <= 0:
@@ -44,19 +44,19 @@ static func to_text(binding: String) -> String:
 
 	match prefix:
 		"key":
-			return body if DotInputText.is_bound(body) else ""
+			return body if GSInputText.is_bound(body) else ""
 		"mouse":
-			return DotInputText.mouse_text(body.to_int()) if body.is_valid_int() and body.to_int() > 0 else ""
+			return GSInputText.mouse_text(body.to_int()) if body.is_valid_int() and body.to_int() > 0 else ""
 		"pad":
 			return _pad_text(body.to_lower())
 	return ""
 
 
-## [DotInputText] text as a [DotInputActionSet] binding, or "" when it names nothing.
+## [GSInputText] text as a [GSInputActionSet] binding, or "" when it names nothing.
 static func to_binding(text: String) -> String:
-	var event := DotInputText.from_text(text)
+	var event := GSInputText.from_text(text)
 	if event is InputEventKey:
-		return "key:" + DotInputText.to_text(event)
+		return "key:" + GSInputText.to_text(event)
 	if event is InputEventMouseButton:
 		return "mouse:%d" % (event as InputEventMouseButton).button_index
 	if event is InputEventJoypadButton:
