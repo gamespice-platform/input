@@ -2,6 +2,8 @@
 
 Godot 4.7+ addon for input: declared actions, device profiles for keyboard and mouse, gamepad and touch, rebinding with conflict detection, and one sampled intent per tick. Part of the [GameSpice](https://github.com/gamespice-platform) family. It needs only [GameSpice Core](https://github.com/gamespice-platform/core).
 
+gs-input is a [GameSpice](https://gamespice.net) addon under the MIT licence. Claude Code wrote it, and `examples/input_selftest.tscn` is the headless suite. The games in [Zee's Games](https://zeesgames.com) are built on the GameSpice addons and run on live servers, so it sees real play and not just tests.
+
 The addon is the data model: which actions a game has, what each device binds them to, who clashes, and what one tick of input looked like as plain values. The data model never reads `Input` or edits `InputMap`. `GSInputText` (event to short text and back, pure) and `GSInputMap` (apply text to `InputMap` actions) are the two classes that do the event step.
 
 ## Install
@@ -52,6 +54,27 @@ Layers, weakest first: the defaults, `cfg/addon/gs_input/*.yml`, the game's file
 - Not touch widgets: GameSpice Mobile owns the on-screen sticks and buttons. `touch:` bindings name them.
 - Not the network input type: GameSpice Net owns `GSNetInput` and prediction. An intent converts to a dictionary a game can put in one.
 - Not an anti-cheat: a server still validates every command.
+
+## Used by
+
+Games that vendor this addon:
+
+- [Fatal Contact](https://zeesgames.com/fatal-contact)
+- [Airdrift](https://zeesgames.com/airdrift)
+- [Playlot](https://zeesgames.com/playlot)
+- [Hungario](https://zeesgames.com/hungario)
+- [Buses From Hell](https://zeesgames.com/buses-from-hell)
+- [Smash Copter](https://zeesgames.com/smash-copter)
+- [Zombie Zone](https://zeesgames.com/zombie-zone)
+- [Hide n Seek](https://zeesgames.com/hide-n-seek)
+- [Prop Hunt](https://zeesgames.com/prop-hunt)
+- [Murder Mystery](https://zeesgames.com/murder-mystery)
+- [Deathrun](https://zeesgames.com/deathrun)
+- [Wipeout](https://zeesgames.com/wipeout)
+- [Dangerous Delivery](https://zeesgames.com/dangerous-delivery)
+- [Look At Me](https://zeesgames.com/look-at-me)
+
+The whole collection is at [zeesgames.com](https://zeesgames.com).
 
 ## Licence
 
