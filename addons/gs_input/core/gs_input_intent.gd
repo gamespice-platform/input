@@ -16,9 +16,13 @@ static func sample(set: GSInputActionSet, cfg: GSInputConfig, raw: Dictionary, p
 	out.tick = at_tick
 	if not cfg.enabled:
 		return out
-	for action: StringName in set.names():
-		var value := float(raw.get(action, raw.get(str(action), 0.0)))
-		if set.kind_of(action) == GSInputActionSet.KIND_AXIS:
+	var kinds := set.kind_table()
+	for action: StringName in kinds:
+		var got: Variant = raw.get(action)
+		if got == null:
+			got = raw.get(str(action), 0.0)  # perf-lint: allow string_build only for String-keyed raw input
+		var value := float(got)
+		if kinds[action] == GSInputActionSet.KIND_AXIS:
 			var shaped := apply_deadzone(value, cfg.gamepad_deadzone)
 			if shaped != 0.0:
 				out.axes[action] = shaped

@@ -1,0 +1,14 @@
+# gd-perf
+# Baselines only shrink: scripts/<gate> --update lowers or drops entries and refuses to add.
+addons/gs_input/core/gs_input_action_set.gd::<members>::untyped_array	1
+addons/gs_input/core/gs_input_action_set.gd::bindings::untyped_array	1
+addons/gs_input/core/gs_input_action_set.gd::declare::untyped_array	1
+addons/gs_input/core/gs_input_action_set.gd::holders::untyped_array	2
+addons/gs_input/core/gs_input_action_set.gd::names::untyped_array	1
+addons/gs_input/core/gs_input_conflicts.gd::find::untyped_array	4
+addons/gs_input/core/gs_input_intent.gd::<members>::untyped_array	4
+addons/gs_input/core/gs_input_intent.gd::_stringify::untyped_array	2
+addons/gs_input/core/gs_input_intent.gd::from_dict::untyped_array	2
+addons/gs_input/core/gs_input_intent.gd::sample::untyped_array	1
+addons/gs_input/core/gs_input_intent.gd::to_dict::untyped_array	1
+addons/gs_input/core/gs_input_vocab.gd::to_binding::untyped_var	2

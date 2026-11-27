@@ -9,8 +9,8 @@ const KIND_AXIS := "axis"
 
 const _PREFIXES := {"kbm": ["key:", "mouse:"], "pad": ["pad:"], "touch": ["touch:"]}
 
-var _kinds: Dictionary = {}
-var _contexts: Dictionary = {}
+var _kinds: Dictionary[StringName, String] = {}
+var _contexts: Dictionary[StringName, String] = {}
 var _bindings: Dictionary = {}
 
 
@@ -45,11 +45,16 @@ func names() -> Array:
 
 
 func kind_of(action: StringName) -> String:
-	return str(_kinds.get(action, ""))
+	return _kinds.get(action, "")
+
+
+## The declared actions and their kinds, live (read it, do not change it). Lets a per-tick sampler walk the actions without copying the key list.
+func kind_table() -> Dictionary[StringName, String]:
+	return _kinds
 
 
 func context_of(action: StringName) -> String:
-	return str(_contexts.get(action, ""))
+	return _contexts.get(action, "")
 
 
 ## The bindings of [param action] on [param device], in the order they were added.
@@ -94,7 +99,7 @@ func remove_binding(action: StringName, device: String, text: String) -> void:
 
 ## Every other action in the same context that holds [param text] on [param device].
 func holders(action: StringName, device: String, text: String) -> Array:
-	var out: Array = []
+	var out: Array = []  # perf-lint: allow alloc rebind/conflict query, runs per player edit
 	for other: StringName in _kinds:
 		if other != action and _contexts[other] == _contexts.get(action, "play") and bindings(other, device).has(text):
 			out.append(other)
